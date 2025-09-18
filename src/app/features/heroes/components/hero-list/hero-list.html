@@ -1,0 +1,364 @@
+<mat-card class="hero-list-card">
+  <mat-card-header class="list-header">
+    <mat-card-title class="list-title">
+      <div class="title-content">
+        <mat-icon>local_police</mat-icon>
+        <span>Heroes</span>
+        @if (heroesData().pagination.totalItems > 0) {
+        <mat-chip matTooltip="Total Heroes">
+          {{ heroesData().pagination.totalItems }}
+        </mat-chip>
+        }
+      </div>
+    </mat-card-title>
+
+    <div class="header-actions">
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="viewMenu"
+        matTooltip="View options"
+      >
+        <mat-icon>more_vert</mat-icon>
+      </button>
+
+      <mat-menu #viewMenu="matMenu">
+        <button
+          mat-menu-item
+          (click)="toggleView('table')"
+          [disabled]="viewMode() === 'table'"
+        >
+          <mat-icon>table_rows</mat-icon>
+          <span>Table View</span>
+        </button>
+        <button
+          mat-menu-item
+          (click)="toggleView('cards')"
+          [disabled]="viewMode() === 'cards'"
+        >
+          <mat-icon>view_module</mat-icon>
+          <span>Card View</span>
+        </button>
+      </mat-menu>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content class="list-content">
+    @if (heroesData().data.length === 0) {
+    <div class="empty-state">
+      <mat-icon class="empty-icon">superhero_mode</mat-icon>
+      <h3>No Heroes Found</h3>
+      <p>
+        {{ hasFilters() ? "Try adjusting your filters or" : "Get started by" }}
+        adding your first hero!
+      </p>
+    </div>
+    } @else { @if (viewMode() === 'table') {
+    <div class="table-container">
+      <table mat-table [dataSource]="heroesData().data" class="heroes-table">
+        <ng-container matColumnDef="avatar">
+          <th mat-header-cell *matHeaderCellDef>Avatar</th>
+          <td mat-cell *matCellDef="let hero">
+            <div class="hero-avatar">
+              @if (hero.imageUrl) {
+              <img
+                [src]="hero.imageUrl"
+                [alt]="hero.name"
+                (error)="onImageError($event)"
+              />
+              } @else {
+              <img src="images/not_image.png" [alt]="hero.name" />
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let hero">
+            <div class="hero-name-cell">
+              <span class="hero-name">{{ hero.name }}</span>
+              @if (hero.realName) {
+              <span class="real-name">{{ hero.realName }}</span>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="powers">
+          <th mat-header-cell *matHeaderCellDef class="centered-header">
+            Powers
+          </th>
+          <td mat-cell *matCellDef="let hero">
+            <div class="powers-cell">
+              <mat-chip-set>
+                @for (power of hero.powers.slice(0, 2); track power) {
+                <mat-chip class="power-chip" [matTooltip]="power">
+                  <span class="truncate-chip-text">{{ power }}</span>
+                </mat-chip>
+                } @if (hero.powers.length > 2) {
+                <mat-chip
+                  class="more-chip"
+                  [matTooltip]="getMorePowersTooltip(hero.powers.slice(2))"
+                >
+                  +{{ hero.powers.length - 2 }} more
+                </mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="effectiveness">
+          <th mat-header-cell *matHeaderCellDef class="centered-header">
+            Effectiveness
+          </th>
+          <td mat-cell *matCellDef="let hero">
+            <div class="effectiveness-cell">
+              <div class="effectiveness-container">
+                <span class="effectiveness-value"
+                  >{{ hero.effectiveness }}%</span
+                >
+                <div class="effectiveness-bar">
+                  <mat-progress-bar
+                    mode="determinate"
+                    [value]="hero.effectiveness"
+                  >
+                  </mat-progress-bar>
+                </div>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="centered-header">
+            Status
+          </th>
+          <td mat-cell *matCellDef="let hero">
+            <div class="status-cell">
+              <div
+                class="status-indicator"
+                [class]="hero.isAlive ? 'status-alive' : 'status-dead'"
+              >
+                <mat-icon>{{
+                  hero.isAlive ? "favorite" : "heart_broken"
+                }}</mat-icon>
+                <span>{{ hero.isAlive ? "Alive" : "Deceased" }}</span>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="centered-header">
+            Actions
+          </th>
+          <td mat-cell *matCellDef="let hero">
+            <div class="actions-cell">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="onHeroAction(); $event.stopPropagation()"
+                matTooltip="View details"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                color="accent"
+                (click)="onHeroAction(); $event.stopPropagation()"
+                matTooltip="Edit hero"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="onHeroAction(); $event.stopPropagation()"
+                matTooltip="Delete hero"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="hero-row"
+          (click)="onHeroAction()"
+        ></tr>
+      </table>
+    </div>
+    } @else {
+    <div class="cards-container">
+      @for (hero of heroesData().data; track hero.id) {
+      <mat-card class="hero-card" [class.deceased]="!hero.isAlive">
+        <mat-card-header>
+          <div mat-card-avatar class="hero-card-avatar">
+            @if (hero.imageUrl) {
+            <img
+              [src]="hero.imageUrl"
+              [alt]="hero.name"
+              (error)="onImageError($event)"
+            />
+            } @else {
+            <mat-icon>person</mat-icon>
+            }
+          </div>
+
+          <mat-card-title class="hero-card-title">
+            {{ hero.name }}
+            <mat-chip
+              [class]="hero.isAlive ? 'status-alive' : 'status-dead'"
+              class="status-chip"
+            >
+              <mat-icon>{{
+                hero.isAlive ? "favorite" : "heart_broken"
+              }}</mat-icon>
+            </mat-chip>
+          </mat-card-title>
+
+          @if (hero.realName) {
+          <mat-card-subtitle>{{ hero.realName }}</mat-card-subtitle>
+          }
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="card-effectiveness">
+            <span class="effectiveness-label">Effectiveness</span>
+            <div class="effectiveness-display">
+              <mat-progress-bar mode="determinate" [value]="hero.effectiveness">
+              </mat-progress-bar>
+              <span class="effectiveness-percentage"
+                >{{ hero.effectiveness }}%</span
+              >
+            </div>
+          </div>
+
+          <div class="card-powers">
+            <span class="powers-label">Powers</span>
+            <mat-chip-set>
+              @for (power of hero.powers.slice(0, 3); track power) {
+              <mat-chip class="power-chip">{{ power }}</mat-chip>
+              } @if (hero.powers.length > 3) {
+              <mat-chip
+                class="more-chip"
+                [matTooltip]="getMorePowersTooltip(hero.powers.slice(3))"
+              >
+                +{{ hero.powers.length - 3 }}
+              </mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+
+          @if (hero.weaknesses.length > 0) {
+          <div class="card-weaknesses">
+            <span class="weaknesses-label">Weaknesses</span>
+            <mat-chip-set>
+              @for (weakness of hero.weaknesses.slice(0, 2); track weakness) {
+              <mat-chip class="weakness-chip">{{ weakness }}</mat-chip>
+              } @if (hero.weaknesses.length > 2) {
+              <mat-chip
+                class="more-chip"
+                [matTooltip]="
+                  getMoreWeaknessesTooltip(hero.weaknesses.slice(2))
+                "
+              >
+                +{{ hero.weaknesses.length - 2 }}
+              </mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+          }
+        </mat-card-content>
+
+        <mat-card-actions align="end">
+          <button
+            mat-button
+            color="primary"
+            (click)="onHeroAction(); $event.stopPropagation()"
+          >
+            <mat-icon>visibility</mat-icon>
+            View
+          </button>
+
+          <button
+            mat-button
+            color="accent"
+            (click)="onHeroAction(); $event.stopPropagation()"
+          >
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+
+          <button
+            mat-button
+            color="warn"
+            (click)="onHeroAction(); $event.stopPropagation()"
+          >
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </mat-card-actions>
+      </mat-card>
+      }
+    </div>
+    }
+
+    <div class="pagination-container">
+      <div class="pagination-info">
+        <span class="results-info">
+          Showing {{ resultsRange().start }}-{{ resultsRange().end }} of
+          {{ heroesData().pagination.totalItems }} heroes
+        </span>
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          mat-icon-button
+          [disabled]="!heroesData().pagination.hasPrevious"
+          (click)="onPageChange('previous')"
+          matTooltip="Previous page"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <div class="page-indicator">
+          <span class="page-info">
+            Page {{ heroesData().pagination.page }} of
+            {{ heroesData().pagination.totalPages }}
+          </span>
+        </div>
+
+        <button
+          mat-icon-button
+          [disabled]="!heroesData().pagination.hasNext"
+          (click)="onPageChange('next')"
+          matTooltip="Next page"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <div class="page-size-selector">
+        <span class="page-size-label">Items per page:</span>
+        <select
+          class="page-size-select"
+          [value]="heroesData().pagination.pageSize"
+          (change)="onPageSizeChange($event)"
+        >
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+    </div>
+    }
+  </mat-card-content>
+</mat-card>

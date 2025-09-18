@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { Observable, of, delay } from 'rxjs';
 import { Hero } from '../models/hero.models';
 
 @Injectable({
@@ -18,7 +19,8 @@ export class DataStorageService {
       effectiveness: 92,
       weaknesses: ['Cannot stop physical breaches'],
       isAlive: true,
-      imageUrl: undefined,
+      imageUrl:
+        'https://res.cloudinary.com/djh3gcq2q/image/upload/v1758146806/captain_firewall_owrg6f.png',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -34,7 +36,8 @@ export class DataStorageService {
       effectiveness: 95,
       weaknesses: ['Overconfidence in algorithms'],
       isAlive: true,
-      imageUrl: undefined,
+      imageUrl:
+        'https://res.cloudinary.com/djh3gcq2q/image/upload/v1758146806/codemaster_asamrw.png',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -49,7 +52,8 @@ export class DataStorageService {
       effectiveness: 97,
       weaknesses: ['Users forgetting their keys'],
       isAlive: true,
-      imageUrl: undefined,
+      imageUrl:
+        'https://res.cloudinary.com/djh3gcq2q/image/upload/v1758146806/lady_encryption_uwkgvf.png',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -61,7 +65,8 @@ export class DataStorageService {
       effectiveness: 88,
       weaknesses: ['Easily distracted by puzzles'],
       isAlive: true,
-      imageUrl: undefined,
+      imageUrl:
+        'https://res.cloudinary.com/djh3gcq2q/image/upload/v1758146806/bug_hunter_acwdps.png',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -76,7 +81,8 @@ export class DataStorageService {
       effectiveness: 90,
       weaknesses: ['Latency storms'],
       isAlive: true,
-      imageUrl: undefined,
+      imageUrl:
+        'https://res.cloudinary.com/djh3gcq2q/image/upload/v1758146807/cloud_rider_kjdv8j.png',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -91,14 +97,39 @@ export class DataStorageService {
         'Reboots slow him down',
       ],
       isAlive: true,
-      imageUrl: undefined,
+      imageUrl:
+        'https://res.cloudinary.com/djh3gcq2q/image/upload/v1758146806/the_patcher_wcdm0v.png',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
   ]);
 
-  async getAllHeroes(): Promise<Hero[]> {
-    const heroes = this.heroes();
-    return heroes;
+  private simulateDelay<T>(data: T): Observable<T> {
+    const delayTime = Math.random() * 800 + 200;
+    return of(data).pipe(delay(delayTime));
+  }
+
+  getAllHeroes(): Observable<Hero[]> {
+    return this.simulateDelay(this.heroes());
+  }
+
+  getHeroById(id: string): Observable<Hero | null> {
+    const hero = this.heroes().find((h) => h.id === id) || null;
+    return this.simulateDelay(hero);
+  }
+
+  searchHeroes(searchTerm: string): Observable<Hero[]> {
+    if (!searchTerm.trim()) {
+      return this.simulateDelay(this.heroes());
+    }
+
+    const term = searchTerm.toLowerCase();
+    const results = this.heroes().filter(
+      (hero) =>
+        hero.name.toLowerCase().includes(term) ||
+        hero.realName?.toLowerCase().includes(term)
+    );
+
+    return this.simulateDelay(results);
   }
 }

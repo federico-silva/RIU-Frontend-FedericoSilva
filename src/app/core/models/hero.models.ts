@@ -1,3 +1,5 @@
+import { PaginatedResponse } from './common.models';
+
 export interface Hero {
   id: string;
   name: string;
@@ -9,4 +11,14 @@ export interface Hero {
   imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export type HeroesResponse = PaginatedResponse<Hero>;
+
+export interface HeroState {
+  heroes: Hero[];
+  selectedHero: Hero | null;
+  searchTerm: string;
+  isLoading: boolean;
+  error: string | null;
 }

@@ -1,0 +1,18 @@
+<div class="page-container">
+  <div class="page-content">
+    <app-hero-filter
+      [initialSearchTerm]="heroService.searchTerm()"
+      (searchTermChange)="onFiltersChange($event)"
+    >
+    </app-hero-filter>
+    <div class="list-section">
+      <app-hero-list
+        [heroesData]="heroService.paginatedHeroes()"
+        [hasFilters]="hasActiveFilters()"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      >
+      </app-hero-list>
+    </div>
+  </div>
+</div>
