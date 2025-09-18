@@ -24,6 +24,6 @@ export interface HeroState {
 }
 
 export interface HeroAction {
-  type: 'delete';
+  type: 'delete' | 'view';
   hero: Hero;
 }

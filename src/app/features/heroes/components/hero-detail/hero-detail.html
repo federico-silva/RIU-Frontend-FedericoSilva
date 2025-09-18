@@ -1,0 +1,75 @@
+<mat-card class="detail-card">
+  <mat-card-header class="card-header">
+    <div class="header-text">
+      <mat-card-title class="hero-name">{{ hero()?.name }}</mat-card-title>
+      @if (hero()?.realName) {
+      <mat-card-subtitle class="real-name">{{
+        hero()?.realName
+      }}</mat-card-subtitle>
+      }
+    </div>
+    <div
+      class="status"
+      [class.alive]="hero()?.isAlive"
+      [class.deceased]="!hero()?.isAlive"
+    >
+      <mat-icon>{{ hero()?.isAlive ? "favorite" : "heart_broken" }}</mat-icon>
+      <span>{{ hero()?.isAlive ? "Alive" : "Deceased" }}</span>
+    </div>
+  </mat-card-header>
+
+  <div class="image-container">
+    <img
+      [src]="hero()?.imageUrl || 'images/not_image.png'"
+      alt="Photo of {{ hero()?.name }}"
+      class="hero-image"
+    />
+  </div>
+  <mat-card-content class="card-content">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-header">
+          <mat-icon>trending_up</mat-icon>
+          <span class="stat-label">Effectiveness</span>
+        </div>
+        <div class="effectiveness-bar">
+          <mat-progress-bar
+            mode="determinate"
+            [value]="hero()?.effectiveness"
+          ></mat-progress-bar>
+          <span class="effectiveness-value">{{ hero()?.effectiveness }}%</span>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <div class="stat-header">
+          <mat-icon>flash_on</mat-icon>
+          <span class="stat-label">Powers</span>
+        </div>
+        <mat-chip-set>
+          @for(power of hero()?.powers; track power) {
+          <mat-chip class="power-chip">{{ power }}</mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+
+      @if (hero()?.weaknesses?.length) {
+      <div class="stat-item">
+        <div class="stat-header">
+          <mat-icon>dangerous</mat-icon>
+          <span class="stat-label">Weaknesses</span>
+        </div>
+        <mat-chip-set>
+          @for(weakness of hero()?.weaknesses; track weakness) {
+          <mat-chip class="weakness-chip">{{ weakness }}</mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+      }
+    </div>
+  </mat-card-content>
+  <mat-divider></mat-divider>
+  <mat-card-footer class="card-footer">
+    <small>Last updated: {{ hero()?.updatedAt | date : "medium" }}</small>
+  </mat-card-footer>
+</mat-card>

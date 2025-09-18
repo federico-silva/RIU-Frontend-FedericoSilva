@@ -158,7 +158,9 @@
               <button
                 mat-icon-button
                 color="primary"
-                (click)="onHeroAction(); $event.stopPropagation()"
+                (click)="
+                  onHeroAction({ type: 'view', hero }); $event.stopPropagation()
+                "
                 matTooltip="View details"
               >
                 <mat-icon>visibility</mat-icon>
@@ -193,7 +195,7 @@
           mat-row
           *matRowDef="let row; columns: displayedColumns"
           class="hero-row"
-          (click)="onHeroAction()"
+          (click)="onHeroAction({ type: 'view', hero: row })"
         ></tr>
       </table>
     </div>
@@ -284,7 +286,9 @@
           <button
             mat-button
             color="primary"
-            (click)="onHeroAction(); $event.stopPropagation()"
+            (click)="
+              onHeroAction({ type: 'view', hero }); $event.stopPropagation()
+            "
           >
             <mat-icon>visibility</mat-icon>
             View

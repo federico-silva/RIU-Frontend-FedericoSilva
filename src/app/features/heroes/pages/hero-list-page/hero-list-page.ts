@@ -12,6 +12,7 @@ import { HeroService } from '../../../../core/services/hero.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Hero, HeroAction } from '../../../../core/models/hero.models';
 import { ConfirmDialogData } from '../../../../core/models/confirm-dialog.models';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-hero-list-page',
@@ -23,6 +24,7 @@ export class HeroListPage {
   public readonly heroService = inject(HeroService);
   private readonly notificationService = inject(NotificationService);
 
+  private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -36,6 +38,9 @@ export class HeroListPage {
 
   onHeroAction(action: HeroAction): void {
     switch (action.type) {
+      case 'view':
+        this.router.navigate(['/heroes/view', action.hero.id]);
+        break;
       case 'delete':
         this.handleDeleteHero(action.hero);
         break;

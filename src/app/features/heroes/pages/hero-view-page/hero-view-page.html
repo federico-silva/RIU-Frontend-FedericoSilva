@@ -1,0 +1,19 @@
+<div class="view-page-container">
+  @if (hero()) {
+  <div class="actions-header">
+    <button mat-flat-button routerLink="/heroes/list">
+      <mat-icon>arrow_back</mat-icon>
+      Back to List
+    </button>
+  </div>
+  <app-hero-detail [hero]="hero()!"></app-hero-detail>
+  } @else {
+  <div class="error-container">
+    <h2>Hero Not Found</h2>
+    <p>The hero you are looking for does not exist or could not be loaded.</p>
+    <button mat-raised-button color="primary" routerLink="/heroes/list">
+      Return to Heroes List
+    </button>
+  </div>
+  }
+</div>
