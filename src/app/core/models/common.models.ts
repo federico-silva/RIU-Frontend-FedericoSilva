@@ -21,3 +21,10 @@ export interface ApiResponse<T> {
   error?: string;
   message?: string;
 }
+
+export interface PageConfig {
+  title: string;
+  subtitle: string;
+  icon: string;
+  showAddButton?: boolean;
+}

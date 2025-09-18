@@ -1,1 +1,7 @@
-<router-outlet></router-outlet>
+<div class="heroes-layout">
+  <app-card-header
+    [config]="currentPageConfig()"
+    (addClick)="navigateToCreate()"
+  />
+  <router-outlet />
+</div>

@@ -1,0 +1,25 @@
+<div class="page-header">
+  <div class="header-content">
+    <div class="title-section">
+      <h1 class="page-title">
+        <mat-icon>{{ config().icon }}</mat-icon>
+        {{ config().title }}
+      </h1>
+      <p class="page-subtitle">{{ config().subtitle }}</p>
+    </div>
+
+    @if (config().showAddButton) {
+    <div class="header-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="addClick.emit()"
+        class="add-hero-btn"
+      >
+        <mat-icon>add</mat-icon>
+        Add New Hero
+      </button>
+    </div>
+    }
+  </div>
+</div>

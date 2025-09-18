@@ -1,0 +1,37 @@
+.heroes-layout {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 24px 0 48px;
+}
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+::ng-deep .page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+::ng-deep .page-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .heroes-layout {
+    padding: 16px 0 32px;
+  }
+
+  ::ng-deep .page-container {
+    padding: 0 16px;
+  }
+
+  ::ng-deep .page-content {
+    padding: 16px;
+  }
+}
