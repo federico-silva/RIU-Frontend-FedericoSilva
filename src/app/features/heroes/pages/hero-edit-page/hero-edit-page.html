@@ -1,0 +1,16 @@
+@if (hero()) {
+<app-hero-form
+  [mode]="'edit'"
+  [hero]="hero()"
+  [isSubmitting]="isSubmitting()"
+  (heroSubmit)="onUpdateHero($event)"
+  (formCancel)="onCancel()"
+/>
+} @else {
+<div class="error-container">
+  <p>Hero not found or failed to load.</p>
+  <button mat-raised-button color="primary" (click)="onCancel()">
+    Back to Heroes
+  </button>
+</div>
+}

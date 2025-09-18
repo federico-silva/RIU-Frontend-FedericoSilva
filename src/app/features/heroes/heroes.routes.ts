@@ -29,6 +29,14 @@ export const heroesRoutes: Routes = [
         title: 'Create Hero',
       },
       {
+        path: 'edit/:id',
+        loadComponent: () =>
+          import('./pages/hero-edit-page/hero-edit-page').then(
+            (c) => c.HeroEditPage
+          ),
+        title: 'Edit Hero',
+      },
+      {
         path: 'view/:id',
         loadComponent: () =>
           import('./pages/hero-view-page/hero-view-page').then(

@@ -142,6 +142,32 @@ export class DataStorageService {
     return this.simulateDelay(newHero);
   }
 
+  updateHero(
+    id: string,
+    heroData: Partial<Omit<Hero, 'id' | 'createdAt'>>
+  ): Observable<Hero> {
+    const currentHeroes = this.heroes();
+    const heroIndex = currentHeroes.findIndex((h) => h.id === id);
+
+    if (heroIndex === -1) {
+      return throwError(() => new Error('Hero not found'));
+    }
+
+    const updatedHero: Hero = {
+      ...currentHeroes[heroIndex],
+      ...heroData,
+      updatedAt: new Date(),
+    };
+
+    this.heroes.update((heroes) => {
+      const newHeroes = [...heroes];
+      newHeroes[heroIndex] = updatedHero;
+      return newHeroes;
+    });
+
+    return this.simulateDelay(updatedHero);
+  }
+
   deleteHero(id: string): Observable<boolean> {
     const heroExists = this.heroes().some((h) => h.id === id);
 
@@ -157,7 +183,7 @@ export class DataStorageService {
     const delayTime = Math.random() * 800 + 200;
     return of(data).pipe(delay(delayTime));
   }
-  
+
   private generateId(): string {
     return Date.now().toString() + Math.random().toString(36).substr(2, 9);
   }

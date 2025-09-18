@@ -1,9 +1,13 @@
 <mat-card class="hero-form-card">
   <mat-card-header>
     <mat-card-title class="form-title">
-      <mat-icon>add</mat-icon>
-      Create New Hero
+      <mat-icon>{{ mode() === "create" ? "add" : "edit" }}</mat-icon>
+      {{ mode() === "create" ? "Create New Hero" : "Edit Hero" }}
     </mat-card-title>
+
+    @if (mode() === 'edit' && hero()) {
+    <mat-card-subtitle> Editing: {{ hero()?.name }} </mat-card-subtitle>
+    }
   </mat-card-header>
 
   <mat-card-content>
@@ -306,8 +310,9 @@
       @if (isSubmitting()) {
       <mat-icon class="spinning">sync</mat-icon>
       } @else {
-      <mat-icon>add</mat-icon>
-      } Create Hero
+      <mat-icon>{{ mode() === "create" ? "add" : "save" }}</mat-icon>
+      }
+      {{ mode() === "create" ? "Create Hero" : "Update Hero" }}
     </button>
   </mat-card-actions>
 </mat-card>

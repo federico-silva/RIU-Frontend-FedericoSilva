@@ -174,7 +174,9 @@
               <button
                 mat-icon-button
                 color="accent"
-                (click)="onHeroAction(); $event.stopPropagation()"
+                (click)="
+                  onHeroAction({ type: 'edit', hero }); $event.stopPropagation()
+                "
                 matTooltip="Edit hero"
               >
                 <mat-icon>edit</mat-icon>
@@ -302,7 +304,9 @@
           <button
             mat-button
             color="accent"
-            (click)="onHeroAction(); $event.stopPropagation()"
+            (click)="
+              onHeroAction({ type: 'edit', hero }); $event.stopPropagation()
+            "
           >
             <mat-icon>edit</mat-icon>
             Edit

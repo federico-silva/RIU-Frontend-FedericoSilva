@@ -7,6 +7,7 @@ import {
   Hero,
   HeroesResponse,
   HeroState,
+  UpdateHeroRequest,
 } from '../models/hero.models';
 import { ApiResponse, PaginationParams } from '../models/common.models';
 
@@ -122,6 +123,34 @@ export class HeroService {
     );
   }
 
+  updateHero(request: UpdateHeroRequest): Observable<ApiResponse<Hero>> {
+    this.setError(null);
+
+    const { id, ...updateData } = request;
+    if (updateData.name) {
+      updateData.name = updateData.name.toUpperCase();
+    }
+
+    return this.dataService.updateHero(id, updateData).pipe(
+      tap((hero) => this.replaceHero(hero)),
+      map(
+        (hero) =>
+          ({
+            success: true,
+            data: hero,
+            message: 'Hero updated successfully',
+          } as ApiResponse<Hero>)
+      ),
+      catchError((error) => {
+        this.setError('Error updating hero');
+        return of({
+          success: false,
+          error: 'Error updating hero',
+        } as ApiResponse<Hero>);
+      })
+    );
+  }
+
   deleteHero(id: string): Observable<ApiResponse<boolean>> {
     this.setError(null);
 
@@ -200,6 +229,19 @@ export class HeroService {
     this._state.update((state) => ({
       ...state,
       heroes: [...state.heroes, hero],
+    }));
+  }
+
+  private replaceHero(updatedHero: Hero): void {
+    this._state.update((state) => ({
+      ...state,
+      heroes: state.heroes.map((h) =>
+        h.id === updatedHero.id ? updatedHero : h
+      ),
+      selectedHero:
+        state.selectedHero?.id === updatedHero.id
+          ? updatedHero
+          : state.selectedHero,
     }));
   }
 

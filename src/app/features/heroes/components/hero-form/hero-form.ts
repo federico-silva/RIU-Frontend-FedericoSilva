@@ -33,7 +33,12 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { UppercaseDirective } from '../../../../core/directives/uppercase.directive';
 import { CustomValidators } from '../../../../core/utils/form-validators';
-import { CreateHeroRequest, FormMode, Hero } from '../../../../core/models/hero.models';
+import {
+  CreateHeroRequest,
+  FormMode,
+  Hero,
+  UpdateHeroRequest,
+} from '../../../../core/models/hero.models';
 
 @Component({
   selector: 'app-hero-form',
@@ -65,7 +70,7 @@ export class HeroForm implements OnInit {
   readonly mode = input<FormMode>('create');
   readonly isSubmitting = input<boolean>(false);
 
-  readonly heroSubmit = output<CreateHeroRequest>();
+  readonly heroSubmit = output<CreateHeroRequest | UpdateHeroRequest>();
   readonly formCancel = output<void>();
 
   public heroForm!: FormGroup;
@@ -97,6 +102,11 @@ export class HeroForm implements OnInit {
   ngOnInit(): void {
     this.initializeForm();
     this.setupFormSubscriptions();
+
+    const heroData = this.hero();
+    if (heroData && this.mode() === 'edit') {
+      this.loadHeroData(heroData);
+    }
   }
 
   private initializeForm(): void {
@@ -126,6 +136,29 @@ export class HeroForm implements OnInit {
       .get('effectiveness')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => this.effectivenessValue.set(value || 50));
+  }
+
+  private loadHeroData(hero: Hero): void {
+    this.powersArray.clear();
+    this.weaknessesArray.clear();
+
+    this.heroForm.patchValue({
+      name: hero.name,
+      realName: hero.realName || '',
+      imageUrl: hero.imageUrl || '',
+      effectiveness: hero.effectiveness,
+      isAlive: hero.isAlive,
+    });
+
+    hero.powers.forEach((power) => {
+      this.powersArray.push(this.fb.control(power));
+    });
+
+    hero.weaknesses.forEach((weakness) => {
+      this.weaknessesArray.push(this.fb.control(weakness));
+    });
+
+    this.effectivenessValue.set(hero.effectiveness);
   }
 
   public addPower(event?: Event): void {
@@ -198,16 +231,20 @@ export class HeroForm implements OnInit {
   }
 
   resetForm(): void {
-    this.heroForm.reset({
-      name: '',
-      realName: '',
-      imageUrl: '',
-      effectiveness: 50,
-      isAlive: true,
-    });
-    this.powersArray.clear();
-    this.weaknessesArray.clear();
-    this.effectivenessValue.set(50);
+    if (this.mode() === 'edit' && this.hero()) {
+      this.loadHeroData(this.hero()!);
+    } else {
+      this.heroForm.reset({
+        name: '',
+        realName: '',
+        imageUrl: '',
+        effectiveness: 50,
+        isAlive: true,
+      });
+      this.powersArray.clear();
+      this.weaknessesArray.clear();
+      this.effectivenessValue.set(50);
+    }
 
     this.powerControl.reset();
     this.weaknessControl.reset();
@@ -230,7 +267,15 @@ export class HeroForm implements OnInit {
       isAlive: formValue.isAlive,
     };
 
-    this.heroSubmit.emit(heroData as CreateHeroRequest);
+    if (this.mode() === 'edit' && this.hero()) {
+      const updateData: UpdateHeroRequest = {
+        id: this.hero()!.id,
+        ...heroData,
+      };
+      this.heroSubmit.emit(updateData);
+    } else {
+      this.heroSubmit.emit(heroData as CreateHeroRequest);
+    }
   }
 
   onCancel(): void {

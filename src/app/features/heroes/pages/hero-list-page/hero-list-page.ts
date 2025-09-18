@@ -45,6 +45,9 @@ export class HeroListPage {
       case 'view':
         this.router.navigate(['/heroes/view', action.hero.id]);
         break;
+      case 'edit':
+        this.router.navigate(['/heroes/edit', action.hero.id]);
+        break;
       case 'delete':
         this.handleDeleteHero(action.hero);
         break;

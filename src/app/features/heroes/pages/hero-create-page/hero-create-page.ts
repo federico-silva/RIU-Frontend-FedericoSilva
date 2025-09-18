@@ -5,7 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HeroService } from '../../../../core/services/hero.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { HeroForm } from '../../components/hero-form/hero-form';
-import { CreateHeroRequest } from '../../../../core/models/hero.models';
+import { CreateHeroRequest, UpdateHeroRequest } from '../../../../core/models/hero.models';
 
 @Component({
   selector: 'app-hero-create-page',
@@ -22,7 +22,7 @@ export class HeroCreatePage {
 
   readonly isSubmitting = signal(false);
 
-  onCreateHero(heroRequest: CreateHeroRequest): void {
+  onCreateHero(heroRequest: CreateHeroRequest | UpdateHeroRequest): void {
     this.isSubmitting.set(true);
 
     this.heroService

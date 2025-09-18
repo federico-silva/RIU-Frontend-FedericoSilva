@@ -22,6 +22,9 @@ export interface CreateHeroRequest {
   isAlive: boolean;
   imageUrl?: string;
 }
+export interface UpdateHeroRequest extends Partial<CreateHeroRequest> {
+  id: string;
+}
 
 export type HeroesResponse = PaginatedResponse<Hero>;
 
@@ -34,8 +37,8 @@ export interface HeroState {
 }
 
 export interface HeroAction {
-  type: 'delete' | 'view';
+  type: 'edit' | 'delete' | 'view';
   hero: Hero;
 }
 
-export type FormMode = 'create';
+export type FormMode = 'create' | 'edit';

@@ -5,6 +5,14 @@
       <mat-icon>arrow_back</mat-icon>
       Back to List
     </button>
+    <button
+      mat-raised-button
+      color="accent"
+      [routerLink]="['/heroes/edit', hero()?.id]"
+    >
+      <mat-icon>edit</mat-icon>
+      Edit Hero
+    </button>
   </div>
   <app-hero-detail [hero]="hero()!"></app-hero-detail>
   } @else {
