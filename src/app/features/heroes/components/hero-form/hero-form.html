@@ -1,0 +1,313 @@
+<mat-card class="hero-form-card">
+  <mat-card-header>
+    <mat-card-title class="form-title">
+      <mat-icon>add</mat-icon>
+      Create New Hero
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="heroForm" (ngSubmit)="onSubmit()" class="hero-form">
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>person</mat-icon>
+          Basic Information
+        </h3>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Hero Name</mat-label>
+            <input
+              matInput
+              formControlName="name"
+              appUppercase
+              placeholder="Enter hero name"
+              autocomplete="off"
+              maxlength="50"
+            />
+            <mat-hint align="start">
+              <span [class.error]="getFieldError('name')">
+                {{
+                  getFieldError("name") ||
+                    "Will be converted to uppercase automatically"
+                }}
+              </span>
+            </mat-hint>
+            <mat-hint align="end"
+              >{{ heroForm.get("name")?.value?.length || 0 }}/50</mat-hint
+            >
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Real Name</mat-label>
+            <input
+              matInput
+              formControlName="realName"
+              placeholder="Enter real identity (letters only)"
+              autocomplete="off"
+              maxlength="50"
+            />
+            <mat-hint align="start">
+              <span [class.error]="getFieldError('realName')">
+                {{
+                  getFieldError("realName") || "Only letters and spaces allowed"
+                }}
+              </span>
+            </mat-hint>
+            <mat-hint align="end"
+              >{{ heroForm.get("realName")?.value?.length || 0 }}/50</mat-hint
+            >
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Image URL</mat-label>
+            <input
+              matInput
+              formControlName="imageUrl"
+              type="url"
+              placeholder="https://example.com/hero-image.jpg"
+              autocomplete="off"
+            />
+            <mat-icon matSuffix>image</mat-icon>
+            <mat-hint>
+              <span [class.error]="getFieldError('imageUrl')">
+                {{
+                  getFieldError("imageUrl") ||
+                    "Optional: Enter a valid image URL"
+                }}
+              </span>
+            </mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>flash_on</mat-icon>
+          Powers & Abilities
+        </h3>
+
+        <div class="power-input-row">
+          <mat-form-field appearance="outline" class="power-input">
+            <mat-label>Add Power</mat-label>
+            <input
+              matInput
+              #powerInput
+              [formControl]="powerControl"
+              (keydown.enter)="addPower($event)"
+              placeholder="Enter power name"
+              autocomplete="off"
+            />
+            <mat-icon matSuffix>add_circle_outline</mat-icon>
+          </mat-form-field>
+
+          <button
+            mat-raised-button
+            type="button"
+            color="primary"
+            (click)="addPower()"
+            [disabled]="!powerControl.value?.trim()"
+          >
+            <mat-icon>add</mat-icon>
+            Add
+          </button>
+        </div>
+
+        <div class="current-powers">
+          @if (powersArray.length > 0) {
+          <div class="powers-header">
+            <span class="powers-count">Powers ({{ powersArray.length }})</span>
+            @if (getFieldError('powers')) {
+            <span class="error-text">{{ getFieldError("powers") }}</span>
+            }
+          </div>
+
+          <mat-chip-set>
+            @for (power of powersArray.controls; track $index; let i = $index) {
+            <mat-chip [removable]="true" (removed)="removePower(i)">
+              {{ power.value }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            }
+          </mat-chip-set>
+          } @else {
+          <div class="empty-state">
+            <mat-icon>info</mat-icon>
+            <span
+              >No powers added yet. A hero must have at least one power.</span
+            >
+          </div>
+          }
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>dangerous</mat-icon>
+          Weaknesses
+        </h3>
+
+        <div class="weakness-input-row">
+          <mat-form-field appearance="outline" class="weakness-input">
+            <mat-label>Add Weakness</mat-label>
+            <input
+              matInput
+              #weaknessInput
+              [formControl]="weaknessControl"
+              (keydown.enter)="addWeakness($event)"
+              placeholder="Enter weakness"
+              autocomplete="off"
+            />
+            <mat-icon matSuffix>add_circle_outline</mat-icon>
+          </mat-form-field>
+
+          <button
+            mat-raised-button
+            type="button"
+            color="accent"
+            (click)="addWeakness()"
+            [disabled]="!weaknessControl.value?.trim()"
+          >
+            <mat-icon>add</mat-icon>
+            Add
+          </button>
+        </div>
+
+        <div class="current-weaknesses">
+          @if (weaknessesArray.length > 0) {
+          <div class="weaknesses-header">
+            <span class="weaknesses-count"
+              >Weaknesses ({{ weaknessesArray.length }})</span
+            >
+          </div>
+
+          <mat-chip-set>
+            @for (weakness of weaknessesArray.controls; track $index; let i =
+            $index) {
+            <mat-chip
+              [removable]="true"
+              (removed)="removeWeakness(i)"
+              class="weakness-chip"
+            >
+              {{ weakness.value }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            }
+          </mat-chip-set>
+          } @else {
+          <div class="empty-state">
+            <mat-icon>info</mat-icon>
+            <span
+              >No weaknesses added. Even the strongest heroes have
+              weaknesses.</span
+            >
+          </div>
+          }
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="form-section">
+        <h3 class="section-title">
+          <mat-icon>trending_up</mat-icon>
+          Stats & Status
+        </h3>
+
+        <div class="effectiveness-container">
+          <div class="effectiveness-header">
+            <span class="effectiveness-label">Effectiveness</span>
+            <div class="effectiveness-value">
+              <span class="value-number">{{ effectivenessValue() }}%</span>
+              <div class="effectiveness-bar">
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="effectivenessValue()"
+                >
+                </mat-progress-bar>
+              </div>
+            </div>
+          </div>
+
+          <mat-slider
+            min="1"
+            max="100"
+            step="1"
+            discrete
+            showTickMarks
+            class="effectiveness-slider"
+          >
+            <input
+              matSliderThumb
+              formControlName="effectiveness"
+              [value]="effectivenessValue()"
+            />
+          </mat-slider>
+
+          <div class="effectiveness-labels">
+            <span>Weak (1%)</span>
+            <span>Average (50%)</span>
+            <span>Legendary (100%)</span>
+          </div>
+        </div>
+
+        <div class="status-container">
+          <mat-checkbox formControlName="isAlive" class="status-checkbox">
+            <div class="status-content">
+              <span class="status-label">Hero Status</span>
+              <span class="status-description">
+                {{
+                  heroForm.get("isAlive")?.value
+                    ? "Currently alive and active"
+                    : "Deceased or retired"
+                }}
+              </span>
+            </div>
+          </mat-checkbox>
+        </div>
+      </div>
+    </form>
+  </mat-card-content>
+
+  <mat-card-actions align="end" class="form-actions">
+    <button
+      mat-button
+      type="button"
+      (click)="onCancel()"
+      [disabled]="isSubmitting()"
+    >
+      Cancel
+    </button>
+
+    <button
+      mat-button
+      type="button"
+      (click)="resetForm()"
+      [disabled]="!heroForm.dirty || isSubmitting()"
+    >
+      Reset
+    </button>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      (click)="onSubmit()"
+      [disabled]="heroForm.invalid || isSubmitting()"
+    >
+      @if (isSubmitting()) {
+      <mat-icon class="spinning">sync</mat-icon>
+      } @else {
+      <mat-icon>add</mat-icon>
+      } Create Hero
+    </button>
+  </mat-card-actions>
+</mat-card>

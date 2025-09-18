@@ -2,7 +2,12 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, catchError, tap, of, map } from 'rxjs';
 
 import { DataStorageService } from './data-storage.service';
-import { Hero, HeroesResponse, HeroState } from '../models/hero.models';
+import {
+  CreateHeroRequest,
+  Hero,
+  HeroesResponse,
+  HeroState,
+} from '../models/hero.models';
 import { ApiResponse, PaginationParams } from '../models/common.models';
 
 @Injectable({
@@ -85,6 +90,38 @@ export class HeroService {
     );
   }
 
+  createHero(request: CreateHeroRequest): Observable<ApiResponse<Hero>> {
+    const validation = this.validateHeroRequest(request);
+    if (!validation.isValid) {
+      return of({ success: false, error: validation.error! });
+    }
+    this.setError(null);
+
+    const heroData = {
+      ...request,
+      name: request.name.toUpperCase(),
+    };
+
+    return this.dataService.createHero(heroData).pipe(
+      tap((hero) => this.addHero(hero)),
+      map(
+        (hero) =>
+          ({
+            success: true,
+            data: hero,
+            message: 'Hero created successfully',
+          } as ApiResponse<Hero>)
+      ),
+      catchError((error) => {
+        this.setError('Error creating hero');
+        return of({
+          success: false,
+          error: 'Error creating hero',
+        } as ApiResponse<Hero>);
+      })
+    );
+  }
+
   deleteHero(id: string): Observable<ApiResponse<boolean>> {
     this.setError(null);
 
@@ -159,6 +196,13 @@ export class HeroService {
     this._state.update((state) => ({ ...state, error }));
   }
 
+  private addHero(hero: Hero): void {
+    this._state.update((state) => ({
+      ...state,
+      heroes: [...state.heroes, hero],
+    }));
+  }
+
   private updateHeroes(heroes: Hero[]): void {
     this._state.update((state) => ({ ...state, heroes }));
   }
@@ -169,5 +213,35 @@ export class HeroService {
       heroes: state.heroes.filter((h) => h.id !== id),
       selectedHero: state.selectedHero?.id === id ? null : state.selectedHero,
     }));
+  }
+
+  private validateHeroRequest(request: CreateHeroRequest): {
+    isValid: boolean;
+    error?: string;
+  } {
+    if (!request.name?.trim()) {
+      return { isValid: false, error: 'Hero name is required' };
+    }
+
+    if (request.effectiveness < 1 || request.effectiveness > 100) {
+      return {
+        isValid: false,
+        error: 'Effectiveness must be between 1 and 100',
+      };
+    }
+
+    if (!request.powers?.length) {
+      return { isValid: false, error: 'Hero must have at least one power' };
+    }
+
+    const existingHero = this.heroes().find(
+      (h) => h.name.toLowerCase() === request.name.toLowerCase()
+    );
+
+    if (existingHero) {
+      return { isValid: false, error: 'A hero with this name already exists' };
+    }
+
+    return { isValid: true };
   }
 }

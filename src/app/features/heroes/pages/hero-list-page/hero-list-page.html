@@ -9,6 +9,7 @@
       <app-hero-list
         [heroesData]="heroService.paginatedHeroes()"
         [hasFilters]="hasActiveFilters()"
+        (addHero)="onAddHero()"
         (heroAction)="onHeroAction($event)"
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)"

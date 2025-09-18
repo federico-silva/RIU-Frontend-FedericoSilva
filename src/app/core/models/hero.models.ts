@@ -13,6 +13,16 @@ export interface Hero {
   updatedAt: Date;
 }
 
+export interface CreateHeroRequest {
+  name: string;
+  realName?: string;
+  powers: string[];
+  effectiveness: number;
+  weaknesses: string[];
+  isAlive: boolean;
+  imageUrl?: string;
+}
+
 export type HeroesResponse = PaginatedResponse<Hero>;
 
 export interface HeroState {
@@ -27,3 +37,5 @@ export interface HeroAction {
   type: 'delete' | 'view';
   hero: Hero;
 }
+
+export type FormMode = 'create';

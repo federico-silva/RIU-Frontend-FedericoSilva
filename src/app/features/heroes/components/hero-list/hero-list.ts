@@ -11,7 +11,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
-import { HeroAction, HeroesResponse } from '../../../../core/models/hero.models';
+import {
+  HeroAction,
+  HeroesResponse,
+} from '../../../../core/models/hero.models';
 
 @Component({
   selector: 'app-hero-list',
@@ -33,12 +36,12 @@ import { HeroAction, HeroesResponse } from '../../../../core/models/hero.models'
 })
 export class HeroList {
   readonly heroesData = input.required<HeroesResponse>();
-  readonly isLoading = input<boolean>(false);
   readonly hasFilters = input<boolean>(false);
 
   readonly pageChange = output<'next' | 'previous'>();
   readonly pageSizeChange = output<number>();
 
+  readonly addHero = output<void>();
   readonly heroAction = output<HeroAction>();
 
   readonly viewMode = signal<'table' | 'cards'>('table');
@@ -60,6 +63,10 @@ export class HeroList {
     );
     return { start, end };
   });
+
+  onAddHero(): void {
+    this.addHero.emit();
+  }
 
   onHeroAction(action?: HeroAction): void {
     if (action) {

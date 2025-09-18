@@ -36,6 +36,10 @@ export class HeroListPage {
     this.loadHeroes();
   }
 
+  onAddHero(): void {
+    this.router.navigate(['/heroes/create']);
+  }
+
   onHeroAction(action: HeroAction): void {
     switch (action.type) {
       case 'view':

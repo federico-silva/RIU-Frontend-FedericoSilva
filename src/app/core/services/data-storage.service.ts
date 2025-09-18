@@ -104,11 +104,6 @@ export class DataStorageService {
     },
   ]);
 
-  private simulateDelay<T>(data: T): Observable<T> {
-    const delayTime = Math.random() * 800 + 200;
-    return of(data).pipe(delay(delayTime));
-  }
-
   getAllHeroes(): Observable<Hero[]> {
     return this.simulateDelay(this.heroes());
   }
@@ -133,6 +128,20 @@ export class DataStorageService {
     return this.simulateDelay(results);
   }
 
+  createHero(
+    heroData: Omit<Hero, 'id' | 'createdAt' | 'updatedAt'>
+  ): Observable<Hero> {
+    const newHero: Hero = {
+      ...heroData,
+      id: this.generateId(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.heroes.update((heroes) => [...heroes, newHero]);
+    return this.simulateDelay(newHero);
+  }
+
   deleteHero(id: string): Observable<boolean> {
     const heroExists = this.heroes().some((h) => h.id === id);
 
@@ -142,5 +151,14 @@ export class DataStorageService {
 
     this.heroes.update((heroes) => heroes.filter((h) => h.id !== id));
     return this.simulateDelay(true);
+  }
+
+  private simulateDelay<T>(data: T): Observable<T> {
+    const delayTime = Math.random() * 800 + 200;
+    return of(data).pipe(delay(delayTime));
+  }
+  
+  private generateId(): string {
+    return Date.now().toString() + Math.random().toString(36).substr(2, 9);
   }
 }

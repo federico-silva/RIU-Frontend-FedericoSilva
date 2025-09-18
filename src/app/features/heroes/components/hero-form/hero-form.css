@@ -1,0 +1,226 @@
+.hero-form-card {
+  max-width: 800px;
+  margin: 0 auto;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.hero-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1976d2;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.power-input-row,
+.weakness-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.power-input,
+.weakness-input {
+  flex: 1;
+}
+
+.current-powers,
+.current-weaknesses {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.powers-header,
+.weaknesses-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.powers-count,
+.weaknesses-count {
+  font-weight: 500;
+  color: #333;
+}
+
+.error-text {
+  color: #f44336;
+  font-size: 12px;
+}
+
+.weakness-chip {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.effectiveness-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.effectiveness-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.effectiveness-label {
+  font-weight: 500;
+}
+
+.effectiveness-value {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.value-number {
+  font-size: 18px;
+  font-weight: 600;
+  min-width: 45px;
+  text-align: right;
+}
+
+.effectiveness-bar {
+  width: 100px;
+}
+
+.effectiveness-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.status-container {
+  padding: 16px 0;
+}
+
+.status-checkbox {
+  width: 100%;
+
+  .mdc-form-field {
+    width: 100%;
+  }
+}
+
+.status-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.status-label {
+  font-weight: 500;
+}
+
+.status-description {
+  font-size: 14px;
+  color: #666;
+}
+
+.form-actions {
+  padding: 16px 24px;
+  gap: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.error {
+  color: #f44336 !important;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-form-card {
+    margin: 0 8px;
+  }
+
+  .power-input-row,
+  .weakness-input-row {
+    flex-direction: column;
+
+    .power-input,
+    .weakness-input {
+      width: 100%;
+    }
+  }
+
+  .effectiveness-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .effectiveness-labels {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

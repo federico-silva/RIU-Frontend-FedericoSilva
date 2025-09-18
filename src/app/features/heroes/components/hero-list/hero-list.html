@@ -13,6 +13,11 @@
     </mat-card-title>
 
     <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="onAddHero()">
+        <mat-icon>add</mat-icon>
+        Add Hero
+      </button>
+
       <button
         mat-icon-button
         [matMenuTriggerFor]="viewMenu"
@@ -212,7 +217,7 @@
               (error)="onImageError($event)"
             />
             } @else {
-            <mat-icon>person</mat-icon>
+            <img src="images/not_image.png" [alt]="hero.name" />
             }
           </div>
 
