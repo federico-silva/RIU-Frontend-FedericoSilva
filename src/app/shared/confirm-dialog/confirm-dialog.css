@@ -1,0 +1,80 @@
+.confirm-dialog {
+  min-width: 350px;
+  max-width: 500px;
+  padding: 12px 24px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.dialog-header mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+
+  &.warning {
+    color: #ff9800;
+  }
+  &.danger {
+    color: #f44336;
+  }
+  &.info {
+    color: #2196f3;
+  }
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.dialog-message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #666;
+}
+
+mat-dialog-actions {
+  gap: 8px;
+  margin-top: 24px;
+  padding: 0;
+}
+
+.cancel-button {
+  color: #666;
+}
+
+.confirm-button {
+  &.warning {
+    background-color: #ff9800;
+    color: white;
+  }
+
+  &.danger {
+    background-color: #f44336;
+    color: white;
+  }
+
+  &.info {
+    background-color: #2196f3;
+    color: white;
+  }
+}
+
+[data-type="danger"] {
+  .dialog-header h2 {
+    color: #f44336;
+  }
+}
+
+[data-type="warning"] {
+  .dialog-header h2 {
+    color: #ff9800;
+  }
+}

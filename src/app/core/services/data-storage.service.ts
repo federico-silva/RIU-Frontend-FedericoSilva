@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Observable, of, delay, throwError } from 'rxjs';
 import { Hero } from '../models/hero.models';
 
 @Injectable({
@@ -131,5 +131,16 @@ export class DataStorageService {
     );
 
     return this.simulateDelay(results);
+  }
+
+  deleteHero(id: string): Observable<boolean> {
+    const heroExists = this.heroes().some((h) => h.id === id);
+
+    if (!heroExists) {
+      return throwError(() => new Error('Hero not found'));
+    }
+
+    this.heroes.update((heroes) => heroes.filter((h) => h.id !== id));
+    return this.simulateDelay(true);
   }
 }

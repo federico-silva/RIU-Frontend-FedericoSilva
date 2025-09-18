@@ -1,9 +1,9 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, catchError, tap, of } from 'rxjs';
+import { Observable, catchError, tap, of, map } from 'rxjs';
 
 import { DataStorageService } from './data-storage.service';
 import { Hero, HeroesResponse, HeroState } from '../models/hero.models';
-import { PaginationParams } from '../models/common.models';
+import { ApiResponse, PaginationParams } from '../models/common.models';
 
 @Injectable({
   providedIn: 'root',
@@ -85,6 +85,34 @@ export class HeroService {
     );
   }
 
+  deleteHero(id: string): Observable<ApiResponse<boolean>> {
+    this.setError(null);
+
+    return this.dataService.deleteHero(id).pipe(
+      map((result) => {
+        if (result === true) {
+          this.removeHero(id);
+          return {
+            success: true,
+            data: true,
+            message: 'Hero deleted successfully',
+          } as ApiResponse<boolean>;
+        }
+        return {
+          success: false,
+          error: 'Failed to delete hero',
+        } as ApiResponse<boolean>;
+      }),
+      catchError((error) => {
+        this.setError('Error deleting hero');
+        return of({
+          success: false,
+          error: 'Error deleting hero',
+        } as ApiResponse<boolean>);
+      })
+    );
+  }
+
   searchHeroes(searchTerm: string): Observable<Hero[]> {
     return this.dataService.searchHeroes(searchTerm);
   }
@@ -133,5 +161,13 @@ export class HeroService {
 
   private updateHeroes(heroes: Hero[]): void {
     this._state.update((state) => ({ ...state, heroes }));
+  }
+
+  private removeHero(id: string): void {
+    this._state.update((state) => ({
+      ...state,
+      heroes: state.heroes.filter((h) => h.id !== id),
+      selectedHero: state.selectedHero?.id === id ? null : state.selectedHero,
+    }));
   }
 }

@@ -176,7 +176,10 @@
               <button
                 mat-icon-button
                 color="warn"
-                (click)="onHeroAction(); $event.stopPropagation()"
+                (click)="
+                  onHeroAction({ type: 'delete', hero });
+                  $event.stopPropagation()
+                "
                 matTooltip="Delete hero"
               >
                 <mat-icon>delete</mat-icon>
@@ -299,7 +302,9 @@
           <button
             mat-button
             color="warn"
-            (click)="onHeroAction(); $event.stopPropagation()"
+            (click)="
+              onHeroAction({ type: 'delete', hero }); $event.stopPropagation()
+            "
           >
             <mat-icon>delete</mat-icon>
             Delete

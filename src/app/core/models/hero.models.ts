@@ -22,3 +22,8 @@ export interface HeroState {
   isLoading: boolean;
   error: string | null;
 }
+
+export interface HeroAction {
+  type: 'delete';
+  hero: Hero;
+}

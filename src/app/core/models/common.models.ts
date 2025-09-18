@@ -14,3 +14,10 @@ export interface PaginationParams {
   page: number;
   pageSize: number;
 }
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
