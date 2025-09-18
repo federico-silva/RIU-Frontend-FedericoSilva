@@ -1,7 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, catchError, tap, of, map } from 'rxjs';
+import { Observable, catchError, tap, of, map, finalize } from 'rxjs';
 
 import { DataStorageService } from './data-storage.service';
+import { LoadingService } from './loading.service';
 import {
   CreateHeroRequest,
   Hero,
@@ -16,6 +17,7 @@ import { ApiResponse, PaginationParams } from '../models/common.models';
 })
 export class HeroService {
   private readonly dataService = inject(DataStorageService);
+  private readonly loadingService = inject(LoadingService);
 
   private readonly _state = signal<HeroState>({
     heroes: [],
@@ -74,20 +76,24 @@ export class HeroService {
   });
 
   loadHeroes(): Observable<Hero[]> {
+    this.loadingService.show();
     this.setError(null);
     return this.dataService.getAllHeroes().pipe(
       tap((heroes) => this.updateHeroes(heroes)),
       catchError((error) => {
         this.setError('Error loading heroes');
         return of([]);
-      })
+      }),
+      finalize(() => this.loadingService.hide())
     );
   }
 
   getHeroById(id: string): Observable<Hero | null> {
+    this.loadingService.show();
     return this.dataService.getHeroById(id).pipe(
       tap((hero) => this.selectHero(hero)),
-      catchError(() => of(null))
+      catchError(() => of(null)),
+      finalize(() => this.loadingService.hide())
     );
   }
 
@@ -96,6 +102,7 @@ export class HeroService {
     if (!validation.isValid) {
       return of({ success: false, error: validation.error! });
     }
+    this.loadingService.show();
     this.setError(null);
 
     const heroData = {
@@ -119,11 +126,13 @@ export class HeroService {
           success: false,
           error: 'Error creating hero',
         } as ApiResponse<Hero>);
-      })
+      }),
+      finalize(() => this.loadingService.hide())
     );
   }
 
   updateHero(request: UpdateHeroRequest): Observable<ApiResponse<Hero>> {
+    this.loadingService.show();
     this.setError(null);
 
     const { id, ...updateData } = request;
@@ -147,11 +156,13 @@ export class HeroService {
           success: false,
           error: 'Error updating hero',
         } as ApiResponse<Hero>);
-      })
+      }),
+      finalize(() => this.loadingService.hide())
     );
   }
 
   deleteHero(id: string): Observable<ApiResponse<boolean>> {
+    this.loadingService.show();
     this.setError(null);
 
     return this.dataService.deleteHero(id).pipe(
@@ -175,7 +186,8 @@ export class HeroService {
           success: false,
           error: 'Error deleting hero',
         } as ApiResponse<boolean>);
-      })
+      }),
+      finalize(() => this.loadingService.hide())
     );
   }
 
