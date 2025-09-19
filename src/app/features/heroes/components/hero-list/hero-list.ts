@@ -15,6 +15,7 @@ import {
   HeroAction,
   HeroesResponse,
 } from '../../../../core/models/hero.models';
+import { HeroCard } from '../hero-card/hero-card';
 
 @Component({
   selector: 'app-hero-list',
@@ -30,6 +31,7 @@ import {
     MatProgressBarModule,
     MatBadgeModule,
     MatMenuModule,
+    HeroCard,
   ],
   templateUrl: './hero-list.html',
   styleUrl: './hero-list.css',
@@ -90,10 +92,6 @@ export class HeroList {
 
   getMorePowersTooltip(remainingPowers: string[]): string {
     return remainingPowers.join(', ');
-  }
-
-  getMoreWeaknessesTooltip(remainingWeaknesses: string[]): string {
-    return remainingWeaknesses.join(', ');
   }
 
   onImageError(event: Event): void {

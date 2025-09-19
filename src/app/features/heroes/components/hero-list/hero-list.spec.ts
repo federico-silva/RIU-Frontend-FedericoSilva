@@ -1,6 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component, input, output } from '@angular/core';
+import { By } from '@angular/platform-browser';
+
 import { HeroList } from './hero-list';
-import { HeroesResponse, Hero } from '../../../../core/models/hero.models';
+import { HeroesResponse, Hero, HeroAction } from '../../../../core/models/hero.models';
+import { HeroCard } from '../hero-card/hero-card';
+
+@Component({
+  selector: 'app-hero-card',
+  template: '',
+  standalone: true,
+})
+class MockHeroCardComponent {
+  hero = input.required<Hero>();
+  heroAction = output<HeroAction>();
+}
 
 describe('HeroList', () => {
   let component: HeroList;
@@ -33,7 +47,12 @@ describe('HeroList', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HeroList],
-    }).compileComponents();
+    })
+    .overrideComponent(HeroList, {
+      remove: { imports: [HeroCard] },
+      add: { imports: [MockHeroCardComponent] },
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(HeroList);
     component = fixture.componentInstance;
@@ -60,10 +79,11 @@ describe('HeroList', () => {
       component.toggleView('cards');
       fixture.detectChanges();
       
-      const cardsContainer = fixture.nativeElement.querySelector('.cards-container');
-      const cards = fixture.nativeElement.querySelectorAll('.hero-card');
-      expect(cardsContainer).toBeTruthy();
-      expect(cards.length).toBe(1);
+      const heroCardDebugElements = fixture.debugElement.queryAll(By.directive(MockHeroCardComponent));
+      expect(heroCardDebugElements.length).toBe(1);
+
+      const heroCardInstance = heroCardDebugElements[0].componentInstance as MockHeroCardComponent;
+      expect(heroCardInstance.hero()).toEqual(mockHero);
     });
 
     it('should display the empty state when no heroes are provided', () => {
@@ -100,6 +120,20 @@ describe('HeroList', () => {
         expect(component.heroAction.emit).toHaveBeenCalledWith({ type: 'edit', hero: mockHero });
     });
 
+    it('should emit heroAction when a hero card emits an action', () => {
+        spyOn(component.heroAction, 'emit');
+        component.toggleView('cards');
+        fixture.detectChanges();
+
+        const heroCardDebugElement = fixture.debugElement.query(By.directive(MockHeroCardComponent));
+        const mockCardInstance = heroCardDebugElement.componentInstance as MockHeroCardComponent;
+        
+        const deleteAction: HeroAction = { type: 'delete', hero: mockHero };
+        mockCardInstance.heroAction.emit(deleteAction);
+
+        expect(component.heroAction.emit).toHaveBeenCalledWith(deleteAction);
+    });
+
     it('should emit pageChange with "next" when next page button is clicked', () => {
         const multiPageResponse = { ...mockHeroesResponse, pagination: { ...mockHeroesResponse.pagination, hasNext: true } };
         fixture.componentRef.setInput('heroesData', multiPageResponse);
@@ -107,9 +141,9 @@ describe('HeroList', () => {
         
         spyOn(component.pageChange, 'emit');
         const nextButton = fixture.nativeElement.querySelector('button[mattooltip="Next page"]');
-        
+       
         nextButton.click();
-
+       
         expect(component.pageChange.emit).toHaveBeenCalledWith('next');
     });
 
@@ -120,7 +154,7 @@ describe('HeroList', () => {
         select.value = '25';
         select.dispatchEvent(new Event('change'));
         fixture.detectChanges();
-
+       
         expect(component.pageSizeChange.emit).toHaveBeenCalledWith(25);
     });
   });
@@ -131,7 +165,7 @@ describe('HeroList', () => {
         
         component.toggleView('cards');
         expect(component.viewMode()).toBe('cards');
-
+        
         component.toggleView('table');
         expect(component.viewMode()).toBe('table');
     });
