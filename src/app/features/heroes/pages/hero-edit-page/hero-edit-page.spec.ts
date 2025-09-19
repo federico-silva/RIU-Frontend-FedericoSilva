@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { HeroService } from '../../../../core/services/hero.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Hero } from '../../../../core/models/hero.models';
@@ -12,34 +12,30 @@ describe('HeroEditPage', () => {
   let component: HeroEditPage;
   let fixture: ComponentFixture<HeroEditPage>;
 
-  let mockHeroService: Partial<HeroService>;
-  let mockRouter: Partial<Router>;
-  let mockNotificationService: Partial<NotificationService>;
+  let mockHeroService: any;
+  let mockRouter: any;
+  let mockNotificationService: any;
 
   const testHero: Hero = {
     id: '1',
     name: 'CAPTAIN FIREWALL',
     realName: 'Alice Johnson',
-    powers: [
-      'Blocks malicious attacks',
-      'Generates protective shields',
-      'Monitors digital traffic in real-time',
-    ],
+    powers: ['Blocks malicious attacks'],
     effectiveness: 92,
     weaknesses: ['Cannot stop physical breaches'],
     isAlive: true,
-    imageUrl:
-      'https://res.cloudinary.com/djh3gcq2q/image/upload/v1758146806/captain_firewall_owrg6f.png',
+    imageUrl: 'https://fake.url/hero.png',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 
   beforeEach(async () => {
     mockHeroService = {
-      getHeroById: (id) => of(testHero),
+      getHeroById: jasmine.createSpy('getHeroById').and.returnValue(of(testHero)),
       heroes: signal([testHero]),
-      updateHero: (updateRequest) =>
-        of({ success: true, message: 'Hero updated' }),
+      updateHero: jasmine.createSpy('updateHero').and.returnValue(
+        of({ success: true, message: 'Hero updated successfully' })
+      ),
     };
 
     mockRouter = {
@@ -71,5 +67,46 @@ describe('HeroEditPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should load hero on init', () => {
+    expect(component.hero()).toEqual(testHero);
+  });
+
+  it('should call updateHero and navigate on successful update', () => {
+    component.hero.set(testHero);
+
+    const updateRequest = { ...testHero, name: 'UPDATED HERO' };
+
+    component.onUpdateHero(updateRequest);
+
+    expect(mockHeroService.updateHero).toHaveBeenCalledWith(jasmine.objectContaining({ id: testHero.id }));
+    expect(mockNotificationService.success).toHaveBeenCalledWith('Hero updated successfully');
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/heroes/list']);
+  });
+
+  it('should show error when updateHero fails', () => {
+    mockHeroService.updateHero.and.returnValue(of({ success: false, error: 'Update failed' }));
+    component.hero.set(testHero);
+
+    component.onUpdateHero(testHero);
+
+    expect(mockNotificationService.error).toHaveBeenCalledWith('Update failed');
+  });
+
+  it('should handle unexpected error when updating hero', () => {
+    mockHeroService.updateHero.and.returnValue(throwError(() => new Error('Unexpected')));
+    component.hero.set(testHero);
+
+    component.onUpdateHero(testHero);
+
+    expect(mockNotificationService.error).toHaveBeenCalledWith(
+      'An unexpected error occurred while updating the hero'
+    );
+  });
+
+  it('should navigate back to list on cancel', () => {
+    component.onCancel();
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/heroes/list']);
   });
 });
