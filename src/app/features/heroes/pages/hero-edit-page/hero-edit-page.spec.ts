@@ -1,4 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { of } from 'rxjs';
+import { HeroService } from '../../../../core/services/hero.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { Hero } from '../../../../core/models/hero.models';
 
 import { HeroEditPage } from './hero-edit-page';
 
@@ -6,11 +12,57 @@ describe('HeroEditPage', () => {
   let component: HeroEditPage;
   let fixture: ComponentFixture<HeroEditPage>;
 
+  let mockHeroService: Partial<HeroService>;
+  let mockRouter: Partial<Router>;
+  let mockNotificationService: Partial<NotificationService>;
+
+  const testHero: Hero = {
+    id: '1',
+    name: 'CAPTAIN FIREWALL',
+    realName: 'Alice Johnson',
+    powers: [
+      'Blocks malicious attacks',
+      'Generates protective shields',
+      'Monitors digital traffic in real-time',
+    ],
+    effectiveness: 92,
+    weaknesses: ['Cannot stop physical breaches'],
+    isAlive: true,
+    imageUrl:
+      'https://res.cloudinary.com/djh3gcq2q/image/upload/v1758146806/captain_firewall_owrg6f.png',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
   beforeEach(async () => {
+    mockHeroService = {
+      getHeroById: (id) => of(testHero),
+      heroes: signal([testHero]),
+      updateHero: (updateRequest) =>
+        of({ success: true, message: 'Hero updated' }),
+    };
+
+    mockRouter = {
+      navigate: jasmine.createSpy('navigate'),
+    };
+
+    mockNotificationService = {
+      success: jasmine.createSpy('success'),
+      error: jasmine.createSpy('error'),
+    };
+
     await TestBed.configureTestingModule({
-      imports: [HeroEditPage]
-    })
-    .compileComponents();
+      imports: [HeroEditPage],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of(convertToParamMap({ id: '1' })) },
+        },
+        { provide: HeroService, useValue: mockHeroService },
+        { provide: Router, useValue: mockRouter },
+        { provide: NotificationService, useValue: mockNotificationService },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(HeroEditPage);
     component = fixture.componentInstance;
