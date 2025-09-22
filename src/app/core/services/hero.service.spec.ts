@@ -50,7 +50,9 @@ describe('HeroService', () => {
   beforeEach(() => {
     const dataSpy = jasmine.createSpyObj('DataStorageService', [
       'getAllHeroes',
+      'getHeroById',
       'createHero',
+      'updateHero',
       'deleteHero',
     ]);
     const loadingSpy = jasmine.createSpyObj('LoadingService', ['show', 'hide']);
@@ -101,6 +103,29 @@ describe('HeroService', () => {
     });
   });
 
+  describe('getHeroById', () => {
+    it('should get hero by id and select it', () => {
+      const heroId = '1';
+      const expectedHero = mockHeroes[0];
+      mockDataStorageService.getHeroById.and.returnValue(of(expectedHero));
+
+      service.getHeroById(heroId).subscribe((hero) => {
+        expect(hero).toEqual(expectedHero);
+      });
+
+      expect(mockDataStorageService.getHeroById).toHaveBeenCalledWith(heroId);
+      expect(service.selectedHero()).toEqual(expectedHero);
+    });
+
+    it('should return null when hero not found', () => {
+      mockDataStorageService.getHeroById.and.returnValue(of(null));
+
+      service.getHeroById('nonexistent').subscribe((hero) => {
+        expect(hero).toBeNull();
+      });
+    });
+  });
+
   describe('createHero', () => {
     it('should not create a hero if validation fails (duplicate name)', () => {
       mockDataStorageService.getAllHeroes.and.returnValue(of(mockHeroes));
@@ -144,6 +169,107 @@ describe('HeroService', () => {
       expect(service.heroes().length).toBe(1);
       expect(service.heroes()[0].name).toBe('LADY ENCRYPTION');
     });
+
+    it('should validate required fields', () => {
+      const invalidRequest = {
+        name: '',
+        powers: ['Power'],
+        effectiveness: 100,
+        weaknesses: [],
+        isAlive: true,
+      };
+
+      service.createHero(invalidRequest).subscribe((response) => {
+        expect(response.success).toBe(false);
+        expect(response.error).toBe('Hero name is required');
+      });
+    });
+
+    it('should validate effectiveness range', () => {
+      const invalidRequest = {
+        name: 'TEST HERO',
+        powers: ['Power'],
+        effectiveness: 101,
+        weaknesses: [],
+        isAlive: true,
+      };
+
+      service.createHero(invalidRequest).subscribe((response) => {
+        expect(response.success).toBe(false);
+        expect(response.error).toBe('Effectiveness must be between 1 and 100');
+      });
+    });
+  });
+
+  describe('updateHero', () => {
+    beforeEach(() => {
+      mockDataStorageService.getAllHeroes.and.returnValue(of(mockHeroes));
+      service.loadHeroes().subscribe();
+    });
+
+    it('should update hero successfully', () => {
+      const updateRequest = {
+        id: '1',
+        name: 'UPDATED CAPTAIN',
+        effectiveness: 95,
+      };
+
+      const updatedHero: Hero = {
+        ...mockHeroes[0],
+        name: 'UPDATED CAPTAIN',
+        effectiveness: 95,
+        updatedAt: new Date(),
+      };
+
+      mockDataStorageService.updateHero.and.returnValue(of(updatedHero));
+
+      service.updateHero(updateRequest).subscribe((response) => {
+        expect(response.success).toBe(true);
+        expect(response.data).toEqual(updatedHero);
+      });
+
+      expect(mockDataStorageService.updateHero).toHaveBeenCalled();
+    });
+
+    it('should handle update errors', () => {
+      mockDataStorageService.updateHero.and.returnValue(
+        throwError(() => new Error('Update failed'))
+      );
+
+      service.updateHero({ id: '1', name: 'Test' }).subscribe((response) => {
+        expect(response.success).toBe(false);
+        expect(response.error).toBe('Error updating hero');
+      });
+    });
+  });
+
+  describe('deleteHero', () => {
+    beforeEach(() => {
+      mockDataStorageService.getAllHeroes.and.returnValue(of(mockHeroes));
+      service.loadHeroes().subscribe();
+    });
+
+    it('should delete hero successfully', () => {
+      mockDataStorageService.deleteHero.and.returnValue(of(true));
+
+      service.deleteHero('1').subscribe((response) => {
+        expect(response.success).toBe(true);
+        expect(response.data).toBe(true);
+      });
+
+      expect(mockDataStorageService.deleteHero).toHaveBeenCalledWith('1');
+    });
+
+    it('should handle deletion errors', () => {
+      mockDataStorageService.deleteHero.and.returnValue(
+        throwError(() => new Error('Delete failed'))
+      );
+
+      service.deleteHero('1').subscribe((response) => {
+        expect(response.success).toBe(false);
+        expect(response.error).toBe('Error deleting hero');
+      });
+    });
   });
 
   describe('Pagination and Filtering', () => {
@@ -182,6 +308,28 @@ describe('HeroService', () => {
 
       service.setSearchTerm('CODE');
       expect(service.pagination().page).toBe(1);
+    });
+
+    it('should handle page navigation', () => {
+      service.setPageSize(1);
+      
+      service.nextPage();
+      expect(service.pagination().page).toBe(2);
+      
+      service.previousPage();
+      expect(service.pagination().page).toBe(1);
+    });
+  });
+
+  describe('Hero Selection', () => {
+    it('should select and clear hero', () => {
+      const hero = mockHeroes[0];
+      
+      service.selectHero(hero);
+      expect(service.selectedHero()).toEqual(hero);
+      
+      service.selectHero(null);
+      expect(service.selectedHero()).toBeNull();
     });
   });
 });
