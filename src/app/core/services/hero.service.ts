@@ -267,6 +267,8 @@ export class HeroService {
       heroes: state.heroes.filter((h) => h.id !== id),
       selectedHero: state.selectedHero?.id === id ? null : state.selectedHero,
     }));
+
+    this.checkAndAdjustPagination();
   }
 
   private validateHeroRequest(request: CreateHeroRequest): {
@@ -297,5 +299,16 @@ export class HeroService {
     }
 
     return { isValid: true };
+  }
+
+  private checkAndAdjustPagination(): void {
+    const currentPagination = this.paginatedHeroes().pagination;
+    if (
+      currentPagination.totalItems > 0 &&
+      currentPagination.page > currentPagination.totalPages
+    ) {
+      const newPage = Math.max(1, currentPagination.totalPages);
+      this._pagination.update((p) => ({ ...p, page: newPage }));
+    }
   }
 }
