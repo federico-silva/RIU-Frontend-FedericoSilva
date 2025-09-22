@@ -1,27 +1,27 @@
 <mat-card class="detail-card">
   <mat-card-header class="card-header">
     <div class="header-text">
-      <mat-card-title class="hero-name">{{ hero()?.name }}</mat-card-title>
-      @if (hero()?.realName) {
+      <mat-card-title class="hero-name">{{ hero().name }}</mat-card-title>
+      @if (hero().realName) {
       <mat-card-subtitle class="real-name">{{
-        hero()?.realName
+        hero().realName
       }}</mat-card-subtitle>
       }
     </div>
     <div
       class="status"
-      [class.alive]="hero()?.isAlive"
-      [class.deceased]="!hero()?.isAlive"
+      [class.alive]="hero().isAlive"
+      [class.deceased]="!hero().isAlive"
     >
-      <mat-icon>{{ hero()?.isAlive ? "favorite" : "heart_broken" }}</mat-icon>
-      <span>{{ hero()?.isAlive ? "Alive" : "Deceased" }}</span>
+      <mat-icon>{{ hero().isAlive ? "favorite" : "heart_broken" }}</mat-icon>
+      <span>{{ hero().isAlive ? "Alive" : "Deceased" }}</span>
     </div>
   </mat-card-header>
 
   <div class="image-container">
     <img
-      [src]="hero()?.imageUrl || 'images/not_image.png'"
-      alt="Photo of {{ hero()?.name }}"
+      [src]="hero().imageUrl || 'images/not_image.png'"
+      alt="Photo of {{ hero().name }}"
       class="hero-image"
     />
   </div>
@@ -35,9 +35,9 @@
         <div class="effectiveness-bar">
           <mat-progress-bar
             mode="determinate"
-            [value]="hero()?.effectiveness"
+            [value]="hero().effectiveness"
           ></mat-progress-bar>
-          <span class="effectiveness-value">{{ hero()?.effectiveness }}%</span>
+          <span class="effectiveness-value">{{ hero().effectiveness }}%</span>
         </div>
       </div>
 
@@ -47,20 +47,20 @@
           <span class="stat-label">Powers</span>
         </div>
         <mat-chip-set>
-          @for(power of hero()?.powers; track power) {
+          @for(power of hero().powers; track power) {
           <mat-chip class="power-chip">{{ power }}</mat-chip>
           }
         </mat-chip-set>
       </div>
 
-      @if (hero()?.weaknesses?.length) {
+      @if (hero().weaknesses.length) {
       <div class="stat-item">
         <div class="stat-header">
           <mat-icon>dangerous</mat-icon>
           <span class="stat-label">Weaknesses</span>
         </div>
         <mat-chip-set>
-          @for(weakness of hero()?.weaknesses; track weakness) {
+          @for(weakness of hero().weaknesses; track weakness) {
           <mat-chip class="weakness-chip">{{ weakness }}</mat-chip>
           }
         </mat-chip-set>
@@ -70,6 +70,6 @@
   </mat-card-content>
   <mat-divider></mat-divider>
   <mat-card-footer class="card-footer">
-    <small>Last updated: {{ hero()?.updatedAt | date : "medium" }}</small>
+    <small>Last updated: {{ hero().updatedAt | date : "medium" }}</small>
   </mat-card-footer>
 </mat-card>
