@@ -180,4 +180,136 @@ describe('HeroForm', () => {
       );
     });
   });
+
+  describe('Weaknesses functionality', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should add a weakness correctly', () => {
+      component.weaknessControl.setValue('Bugs');
+      component.addWeakness();
+
+      expect(component.weaknessesArray.length).toBe(1);
+      expect(component.weaknessesArray.at(0).value).toBe('Bugs');
+    });
+
+    it('should remove a weakness correctly', () => {
+      component.weaknessControl.setValue('Bugs');
+      component.addWeakness();
+      component.weaknessControl.setValue('Overload');
+      component.addWeakness();
+
+      expect(component.weaknessesArray.length).toBe(2);
+
+      component.removeWeakness(0);
+      expect(component.weaknessesArray.length).toBe(1);
+      expect(component.weaknessesArray.at(0).value).toBe('Overload');
+    });
+
+    it('should not add empty weakness', () => {
+      component.weaknessControl.setValue('');
+      component.addWeakness();
+
+      expect(component.weaknessesArray.length).toBe(0);
+    });
+  });
+
+  describe('Effectiveness slider', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should have default effectiveness value of 50', () => {
+      expect(component.effectivenessValue()).toBe(50);
+    });
+
+    it('should update effectiveness value when changed', () => {
+      component.heroForm.get('effectiveness')?.setValue(75);
+
+      expect(component.effectivenessValue()).toBe(75);
+    });
+  });
+
+  describe('Form validation errors', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should return error message for required fields', () => {
+      const nameControl = component.heroForm.get('name');
+      nameControl?.setValue('');
+      nameControl?.markAsTouched();
+
+      const error = component.getFieldError('name');
+      expect(error).toBe('name is required');
+    });
+
+    it('should return null when field has no errors', () => {
+      const nameControl = component.heroForm.get('name');
+      nameControl?.setValue('Valid Hero Name');
+
+      const error = component.getFieldError('name');
+      expect(error).toBeNull();
+    });
+
+    it('should return error for effectiveness out of range', () => {
+      const effectivenessControl = component.heroForm.get('effectiveness');
+      effectivenessControl?.setValue(101);
+      effectivenessControl?.markAsTouched();
+
+      const error = component.getFieldError('effectiveness');
+      expect(error).toBe('Value too high');
+    });
+  });
+
+  describe('Reset form functionality', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should reset form to default values in create mode', () => {
+      component.heroForm.get('name')?.setValue('Test Hero');
+      component.heroForm.get('effectiveness')?.setValue(80);
+      component.powerControl.setValue('Test Power');
+      component.addPower();
+
+      component.resetForm();
+
+      expect(component.heroForm.get('name')?.value).toBe('');
+      expect(component.heroForm.get('effectiveness')?.value).toBe(50);
+      expect(component.powersArray.length).toBe(0);
+    });
+
+    it('should clear power and weakness controls after reset', () => {
+      component.powerControl.setValue('Some Power');
+      component.weaknessControl.setValue('Some Weakness');
+
+      component.resetForm();
+
+      expect(component.powerControl.value).toBeNull();
+      expect(component.weaknessControl.value).toBeNull();
+    });
+  });
+
+  describe('Input validation', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should validate imageUrl field', () => {
+      const imageUrlControl = component.heroForm.get('imageUrl');
+      imageUrlControl?.setValue('invalid-url');
+      imageUrlControl?.markAsTouched();
+
+      expect(imageUrlControl?.valid).toBe(false);
+    });
+
+    it('should accept empty imageUrl as valid', () => {
+      const imageUrlControl = component.heroForm.get('imageUrl');
+      imageUrlControl?.setValue('');
+
+      expect(imageUrlControl?.valid).toBe(true);
+    });
+  });
 });
